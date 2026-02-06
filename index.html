@@ -8,7 +8,6 @@
   :root{
     --bg:#e5e5e5; /* gray background */
     --dark:#0b0f14; /* darkness overlay */
-    --light:rgba(255,255,210,0.95);
   }
   *{box-sizing:border-box}
   body{
@@ -17,6 +16,7 @@
     background:var(--bg);
     color:#222;
     overflow-x:hidden;
+    user-select:none; /* prevent text highlight while interacting */
   }
 
   /* ===== PROFILE ===== */
@@ -40,14 +40,12 @@
     position:fixed;
     inset:0;
     background:var(--dark);
-    pointer-events:none; /* allow interacting with page except the switch */
+    pointer-events:none;
     z-index:5;
-    transition:opacity .25s ease;
+    transition:opacity .2s ease, background .05s linear;
   }
-
   .darkness.on{
-    /* spotlight circle that follows lamp */
-    background:radial-gradient(circle at var(--lx,50%) var(--ly,20%), transparent 120px, rgba(0,0,0,.92) 260px);
+    background:radial-gradient(circle at var(--lx,50%) var(--ly,20%), rgba(255,255,210,.95) 120px, rgba(0,0,0,.92) 260px);
   }
 
   /* ===== LAMP ===== */
@@ -59,7 +57,7 @@
     width:220px;
     height:240px;
     z-index:10;
-    pointer-events:none; /* only children interactive */
+    pointer-events:none;
   }
   .shade{
     width:200px;
@@ -69,48 +67,16 @@
     margin:0 auto;
     box-shadow:0 8px 25px rgba(0,0,0,.45);
   }
-  .rod{
-    width:8px;
-    height:90px;
-    background:#bbb;
-    margin:0 auto;
-  }
-  .cord{
-    width:2px;
-    height:70px;
-    background:#aaa;
-    margin:0 auto;
-    position:relative;
-  }
+  .rod{width:8px;height:90px;background:#bbb;margin:0 auto}
+  .cord{width:2px;height:70px;background:#aaa;margin:0 auto;position:relative}
   .knob{
-    width:34px;
-    height:34px;
-    border-radius:50%;
-    background:#f0f0f0;
-    border:3px solid #999;
-    position:absolute;
-    left:50%;
-    transform:translate(-50%,0);
-    top:58px;
-    cursor:grab;
-    pointer-events:auto; /* IMPORTANT */
-    box-shadow:0 6px 14px rgba(0,0,0,.45);
-    touch-action:none; /* allow drag on mobile */
+    width:34px;height:34px;border-radius:50%;background:#f0f0f0;border:3px solid #999;
+    position:absolute;left:50%;transform:translate(-50%,0);top:58px;cursor:grab;
+    pointer-events:auto;box-shadow:0 6px 14px rgba(0,0,0,.45);touch-action:none;
   }
   .knob:active{cursor:grabbing}
 
-  .hint{
-    position:fixed;
-    top:250px;
-    left:50%;
-    transform:translateX(-50%);
-    color:#fff;
-    font-size:14px;
-    z-index:10;
-    pointer-events:none;
-    opacity:.9;
-  }
-
+  .hint{position:fixed;top:250px;left:50%;transform:translateX(-50%);color:#fff;font-size:14px;z-index:10;pointer-events:none;opacity:.9}
   .hidden{opacity:0}
 </style>
 </head>
@@ -173,56 +139,64 @@ const hint = document.getElementById('hint');
 
 let dragging=false;
 let startY=0;
-let offset=58; // default knob top position
+let offset=58;
+let lampState=false; // persistent on/off
 
-function lampOn(x,y){
-  dark.classList.add('on');
+function setLight(x,y){
   document.documentElement.style.setProperty('--lx', x+'px');
   document.documentElement.style.setProperty('--ly', y+'px');
+}
+
+function turnOn(){
+  lampState=true;
+  dark.classList.add('on');
   hint.classList.add('hidden');
 }
-function lampOff(){
+function turnOff(){
+  lampState=false;
   dark.classList.remove('on');
 }
 
-// CLICK TO TOGGLE
-knob.addEventListener('click',e=>{
-  if(dark.classList.contains('on')) lampOff();
-  else lampOn(window.innerWidth/2,200);
+// click toggles
+knob.addEventListener('click',()=>{
+  lampState?turnOff():turnOn();
 });
 
-// DRAG (MOUSE)
-knob.addEventListener('mousedown',e=>{
-  dragging=true;
-  startY=e.clientY-offset;
-});
+// drag to pull switch (like real lamp)
+knob.addEventListener('mousedown',e=>{dragging=true;startY=e.clientY-offset});
 
 document.addEventListener('mousemove',e=>{
+  // when lamp is ON, just hover to move the light (no holding required)
+  if(lampState){ setLight(e.clientX,e.clientY); }
+
   if(!dragging) return;
   offset=e.clientY-startY;
   offset=Math.max(10,Math.min(offset,90));
   knob.style.top=offset+'px';
-  lampOn(e.clientX,e.clientY);
 });
 
-document.addEventListener('mouseup',()=> dragging=false);
+document.addEventListener('mouseup',()=>{
+  if(dragging){
+    // pulled far enough -> toggle
+    if(offset>75) lampState?turnOff():turnOn();
+    offset=58; // snap back up
+    knob.style.top=offset+'px';
+  }
+  dragging=false;
+});
 
-// DRAG (TOUCH)
-knob.addEventListener('touchstart',e=>{
-  dragging=true;
-  startY=e.touches[0].clientY-offset;
-},{passive:true});
+// touch support\ nknob.addEventListener('touchstart',e=>{dragging=true;startY=e.touches[0].clientY-offset},{passive:true});
 
 document.addEventListener('touchmove',e=>{
-  if(!dragging) return;
   const t=e.touches[0];
+  if(lampState) setLight(t.clientX,t.clientY);
+  if(!dragging) return;
   offset=t.clientY-startY;
   offset=Math.max(10,Math.min(offset,90));
   knob.style.top=offset+'px';
-  lampOn(t.clientX,t.clientY);
 },{passive:true});
 
-document.addEventListener('touchend',()=> dragging=false);
+document.addEventListener('touchend',()=>{dragging=false;offset=58;knob.style.top=offset+'px'});
 </script>
 
 </body>
