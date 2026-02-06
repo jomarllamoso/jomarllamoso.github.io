@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Jomar Llamoso – Interactive Profile</title>
+<style>
+  :root{
+    --bg:#e5e5e5; /* gray background */
+    --dark:#0b0f14; /* darkness overlay */
+    --light:rgba(255,255,210,0.95);
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    font-family:Arial, Helvetica, sans-serif;
+    background:var(--bg);
+    color:#222;
+    overflow-x:hidden;
+  }
+
+  /* ===== PROFILE ===== */
+  .container{
+    max-width:900px;
+    margin:80px auto;
+    background:#fff;
+    border-radius:14px;
+    padding:30px 40px;
+    box-shadow:0 10px 30px rgba(0,0,0,.15);
+    position:relative;
+    z-index:1;
+  }
+  h1{margin-top:0}
+  .section{margin-top:28px}
+  .section h2{border-bottom:2px solid #ddd;padding-bottom:6px}
+  ul{padding-left:18px}
+
+  /* ===== DARK OVERLAY ===== */
+  .darkness{
+    position:fixed;
+    inset:0;
+    background:var(--dark);
+    pointer-events:none; /* allow interacting with page except the switch */
+    z-index:5;
+    transition:opacity .25s ease;
+  }
+
+  .darkness.on{
+    /* spotlight circle that follows lamp */
+    background:radial-gradient(circle at var(--lx,50%) var(--ly,20%), transparent 120px, rgba(0,0,0,.92) 260px);
+  }
+
+  /* ===== LAMP ===== */
+  .lamp{
+    position:fixed;
+    top:0;
+    left:50%;
+    transform:translateX(-50%);
+    width:220px;
+    height:240px;
+    z-index:10;
+    pointer-events:none; /* only children interactive */
+  }
+  .shade{
+    width:200px;
+    height:120px;
+    background:#666;
+    border-radius:110px 110px 18px 18px;
+    margin:0 auto;
+    box-shadow:0 8px 25px rgba(0,0,0,.45);
+  }
+  .rod{
+    width:8px;
+    height:90px;
+    background:#bbb;
+    margin:0 auto;
+  }
+  .cord{
+    width:2px;
+    height:70px;
+    background:#aaa;
+    margin:0 auto;
+    position:relative;
+  }
+  .knob{
+    width:34px;
+    height:34px;
+    border-radius:50%;
+    background:#f0f0f0;
+    border:3px solid #999;
+    position:absolute;
+    left:50%;
+    transform:translate(-50%,0);
+    top:58px;
+    cursor:grab;
+    pointer-events:auto; /* IMPORTANT */
+    box-shadow:0 6px 14px rgba(0,0,0,.45);
+    touch-action:none; /* allow drag on mobile */
+  }
+  .knob:active{cursor:grabbing}
+
+  .hint{
+    position:fixed;
+    top:250px;
+    left:50%;
+    transform:translateX(-50%);
+    color:#fff;
+    font-size:14px;
+    z-index:10;
+    pointer-events:none;
+    opacity:.9;
+  }
+
+  .hidden{opacity:0}
+</style>
+</head>
+<body>
+
+<div class="lamp">
+  <div class="shade"></div>
+  <div class="rod"></div>
+  <div class="cord">
+    <div class="knob" id="switch"></div>
+  </div>
+</div>
+<div class="hint" id="hint">Drag or click the switch</div>
+<div class="darkness" id="dark"></div>
+
+<div class="container">
+  <h1>Jomar N. Llamoso</h1>
+  <p><b>Email:</b> jomarllamoso01@gmail.com<br>
+     <b>Phone:</b> +63 921 553 1389<br>
+     <b>Location:</b> Cainta, Rizal, Philippines</p>
+
+  <div class="section">
+    <h2>Professional Summary</h2>
+    <p>Experienced Customer Service Agent with 4+ years in the industry. Skilled in multitasking, problem‑solving, attention to detail, and email/chat communication. Currently transitioning into the IT/Tech field and eager to learn technical support, hardware/software troubleshooting, and CRM systems.</p>
+  </div>
+
+  <div class="section">
+    <h2>Skills</h2>
+    <ul>
+      <li>G Suite, Microsoft Office</li>
+      <li>Zendesk, Helpshift</li>
+      <li>Slack, Microsoft Teams</li>
+      <li>Asana, TCS Tools</li>
+      <li>Customer Support & Troubleshooting</li>
+    </ul>
+  </div>
+
+  <div class="section">
+    <h2>Work Experience</h2>
+    <ul>
+      <li><b>Content Moderator – Enshored</b> (Apr 2024 – Oct 2025)</li>
+      <li><b>English Freelancer – Century Games</b> (Jul 2023 – Oct 2023)</li>
+      <li><b>Technical Support – Sitel Philippines</b> (Nov 2019 – Mar 2020)</li>
+      <li><b>Player Support Agent – Keywords Studios</b> (Oct 2020 – Apr 2023)</li>
+      <li><b>Customer Service Agent – Teleperformance</b> (Jun 2017 – Oct 2018)</li>
+    </ul>
+  </div>
+
+  <div class="section">
+    <h2>Education</h2>
+    <p>Bachelor of Science in Hotel & Restaurant Management<br>
+    Centro Escolar University, Manila (2010 – 2015)</p>
+  </div>
+</div>
+
+<script>
+const knob = document.getElementById('switch');
+const dark = document.getElementById('dark');
+const hint = document.getElementById('hint');
+
+let dragging=false;
+let startY=0;
+let offset=58; // default knob top position
+
+function lampOn(x,y){
+  dark.classList.add('on');
+  document.documentElement.style.setProperty('--lx', x+'px');
+  document.documentElement.style.setProperty('--ly', y+'px');
+  hint.classList.add('hidden');
+}
+function lampOff(){
+  dark.classList.remove('on');
+}
+
+// CLICK TO TOGGLE
+knob.addEventListener('click',e=>{
+  if(dark.classList.contains('on')) lampOff();
+  else lampOn(window.innerWidth/2,200);
+});
+
+// DRAG (MOUSE)
+knob.addEventListener('mousedown',e=>{
+  dragging=true;
+  startY=e.clientY-offset;
+});
+
+document.addEventListener('mousemove',e=>{
+  if(!dragging) return;
+  offset=e.clientY-startY;
+  offset=Math.max(10,Math.min(offset,90));
+  knob.style.top=offset+'px';
+  lampOn(e.clientX,e.clientY);
+});
+
+document.addEventListener('mouseup',()=> dragging=false);
+
+// DRAG (TOUCH)
+knob.addEventListener('touchstart',e=>{
+  dragging=true;
+  startY=e.touches[0].clientY-offset;
+},{passive:true});
+
+document.addEventListener('touchmove',e=>{
+  if(!dragging) return;
+  const t=e.touches[0];
+  offset=t.clientY-startY;
+  offset=Math.max(10,Math.min(offset,90));
+  knob.style.top=offset+'px';
+  lampOn(t.clientX,t.clientY);
+},{passive:true});
+
+document.addEventListener('touchend',()=> dragging=false);
+</script>
+
+</body>
+</html>
