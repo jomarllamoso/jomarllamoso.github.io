@@ -1,217 +1,195 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Jomar Llamoso – Interactive Profile</title>
 
 <style>
-  :root{
-    --bg:#020502;
-    --dark:#020502;
-    --matrix-green:#00ff41;
-    --matrix-light:#b8ffc8;
-    --panel:rgba(0, 12, 4, 0.78);
-    --border:rgba(0, 255, 65, 0.45);
-  }
+:root{
+  --bg:#020502;
+  --dark:#020502;
+  --matrix-green:#00ff41;
+  --matrix-light:#b8ffc8;
+  --panel:rgba(0,12,4,.78);
+  --border:rgba(0,255,65,.45);
+}
 
-  *{
-    box-sizing:border-box;
-  }
+*{
+  box-sizing:border-box;
+}
 
-  body{
-    margin:0;
-    min-height:100vh;
-    font-family:Arial, Helvetica, sans-serif;
-    background:var(--bg);
-    color:#f2fff5;
-    overflow-x:hidden;
-    user-select:none;
-  }
+body{
+  margin:0;
+  min-height:100vh;
+  font-family:Arial,Helvetica,sans-serif;
+  background:var(--bg);
+  color:#f2fff5;
+  overflow-x:hidden;
+  user-select:none;
+}
 
-  /* ===== MATRIX BACKGROUND ===== */
-  #matrix{
-    position:fixed;
-    inset:0;
-    width:100%;
-    height:100%;
-    background:#020502;
-    z-index:0;
-    pointer-events:none;
-  }
+/* MATRIX BACKGROUND */
+#matrix{
+  position:fixed;
+  inset:0;
+  width:100%;
+  height:100%;
+  background:#020502;
+  z-index:0;
+  pointer-events:none;
+}
 
-  /* ===== PROFILE / RESUME ===== */
+/* RESUME */
+.container{
+  max-width:900px;
+  margin:80px auto;
+  padding:30px 40px;
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:14px;
+  box-shadow:0 0 20px rgba(0,255,65,.12),0 10px 30px rgba(0,0,0,.55);
+  position:relative;
+  z-index:1;
+  backdrop-filter:blur(5px);
+  -webkit-backdrop-filter:blur(5px);
+}
+
+h1{
+  margin-top:0;
+  color:var(--matrix-green);
+  text-shadow:0 0 8px rgba(0,255,65,.55);
+}
+
+p,
+li{
+  color:#f2fff5;
+  line-height:1.6;
+}
+
+b{
+  color:var(--matrix-light);
+}
+
+.section{
+  margin-top:28px;
+}
+
+.section h2{
+  color:var(--matrix-green);
+  border-bottom:2px solid rgba(0,255,65,.35);
+  padding-bottom:6px;
+  text-shadow:0 0 6px rgba(0,255,65,.35);
+}
+
+ul{
+  padding-left:18px;
+}
+
+/* DARK OVERLAY */
+.darkness{
+  position:fixed;
+  inset:0;
+  background:var(--dark);
+  pointer-events:none;
+  z-index:5;
+  opacity:.92;
+  transition:opacity .2s ease;
+}
+
+.darkness.on{
+  opacity:0;
+}
+
+/* LAMP */
+.lamp{
+  position:fixed;
+  top:0;
+  left:50%;
+  transform:translateX(-50%);
+  width:220px;
+  height:240px;
+  z-index:10;
+  pointer-events:none;
+}
+
+.shade{
+  width:200px;
+  height:120px;
+  background:#666;
+  border-radius:110px 110px 18px 18px;
+  margin:0 auto;
+  box-shadow:0 8px 25px rgba(0,0,0,.45);
+}
+
+.rod{
+  width:8px;
+  height:90px;
+  background:#bbb;
+  margin:0 auto;
+}
+
+.cord{
+  width:2px;
+  height:70px;
+  background:#aaa;
+  margin:0 auto;
+  position:relative;
+}
+
+.knob{
+  width:34px;
+  height:34px;
+  border-radius:50%;
+  background:#f0f0f0;
+  border:3px solid #999;
+  position:absolute;
+  left:50%;
+  transform:translateX(-50%);
+  top:58px;
+  cursor:grab;
+  pointer-events:auto;
+  box-shadow:0 6px 14px rgba(0,0,0,.45);
+  touch-action:none;
+}
+
+.knob:active{
+  cursor:grabbing;
+}
+
+.hint{
+  position:fixed;
+  top:250px;
+  left:50%;
+  transform:translateX(-50%);
+  color:#fff;
+  font-size:14px;
+  z-index:10;
+  pointer-events:none;
+  opacity:.9;
+  text-shadow:0 0 8px rgba(0,255,65,.7);
+}
+
+.hidden{
+  opacity:0;
+}
+
+@media(max-width:700px){
   .container{
-    max-width:900px;
-    margin:80px auto;
-    padding:30px 40px;
-
-    /* White box removed */
-    background:var(--panel);
-
-    border:1px solid var(--border);
-    border-radius:14px;
-
-    box-shadow:
-      0 0 20px rgba(0,255,65,.12),
-      0 10px 30px rgba(0,0,0,.55);
-
-    position:relative;
-    z-index:1;
-
-    backdrop-filter:blur(5px);
-    -webkit-backdrop-filter:blur(5px);
+    margin:80px 15px 30px;
+    padding:25px 20px;
   }
 
   h1{
-    margin-top:0;
-    color:var(--matrix-green);
-    text-shadow:0 0 8px rgba(0,255,65,.55);
+    font-size:28px;
   }
-
-  p,
-  li{
-    color:#f2fff5;
-    line-height:1.6;
-  }
-
-  b{
-    color:var(--matrix-light);
-  }
-
-  .section{
-    margin-top:28px;
-  }
-
-  .section h2{
-    color:var(--matrix-green);
-    border-bottom:2px solid rgba(0,255,65,.35);
-    padding-bottom:6px;
-    text-shadow:0 0 6px rgba(0,255,65,.35);
-  }
-
-  ul{
-    padding-left:18px;
-  }
-
-  /* ===== DARK OVERLAY ===== */
-  .darkness{
-    position:fixed;
-    inset:0;
-    background:var(--dark);
-    pointer-events:none;
-    z-index:5;
-    transition:opacity .2s ease, background .05s linear;
-    opacity:.92;
-  }
-
-  .darkness.on{
-    /* Light is ON */
-    opacity:0;
-  }
-
-  /* ===== LAMP ===== */
-  .lamp{
-    position:fixed;
-    top:0;
-    left:50%;
-    transform:translateX(-50%);
-    width:220px;
-    height:240px;
-    z-index:10;
-    pointer-events:none;
-  }
-
-  .shade{
-    width:200px;
-    height:120px;
-    background:#666;
-    border-radius:110px 110px 18px 18px;
-    margin:0 auto;
-    box-shadow:0 8px 25px rgba(0,0,0,.45);
-  }
-
-  .rod{
-    width:8px;
-    height:90px;
-    background:#bbb;
-    margin:0 auto;
-  }
-
-  .cord{
-    width:2px;
-    height:70px;
-    background:#aaa;
-    margin:0 auto;
-    position:relative;
-  }
-
-  .knob{
-    width:34px;
-    height:34px;
-    border-radius:50%;
-    background:#f0f0f0;
-    border:3px solid #999;
-
-    position:absolute;
-    left:50%;
-    transform:translate(-50%,0);
-    top:58px;
-
-    cursor:grab;
-    pointer-events:auto;
-
-    box-shadow:0 6px 14px rgba(0,0,0,.45);
-    touch-action:none;
-  }
-
-  .knob:active{
-    cursor:grabbing;
-  }
-
-  .hint{
-    position:fixed;
-    top:250px;
-    left:50%;
-    transform:translateX(-50%);
-
-    color:#fff;
-    font-size:14px;
-
-    z-index:10;
-    pointer-events:none;
-    opacity:.9;
-
-    text-shadow:0 0 8px rgba(0,255,65,.7);
-  }
-
-  .hidden{
-    opacity:0;
-  }
-
-  /* ===== MOBILE ===== */
-  @media(max-width:700px){
-    .container{
-      margin:80px 15px 30px;
-      padding:25px 20px;
-    }
-
-    h1{
-      font-size:28px;
-    }
-  }
+}
 </style>
-
 </head>
 
 <body>
 
-<!-- MATRIX BACKGROUND -->
-
 <canvas id="matrix"></canvas>
-
-<!-- LAMP -->
 
 <div class="lamp">
   <div class="shade"></div>
@@ -228,8 +206,6 @@
 
 <div class="darkness" id="dark"></div>
 
-<!-- RESUME -->
-
 <div class="container">
 
   <h1>Jomar N. Llamoso</h1>
@@ -241,96 +217,57 @@
   </p>
 
   <div class="section">
+    <h2>Professional Summary</h2>
 
-
-<h2>Professional Summary</h2>
-
-<p>
-  Experienced Customer Service Agent with 4+ years in the industry.
-  Skilled in multitasking, problem-solving, attention to detail, and
-  email/chat communication. Currently transitioning into the IT/Tech
-  field and eager to learn technical support, hardware/software
-  troubleshooting, and CRM systems.
-</p>
-
-
+    <p>
+      Experienced Customer Service Agent with 4+ years in the industry. Skilled in multitasking, problem-solving, attention to detail, and email/chat communication. Currently transitioning into the IT/Tech field and eager to learn technical support, hardware/software troubleshooting, and CRM systems.
+    </p>
   </div>
 
   <div class="section">
+    <h2>Skills</h2>
 
-
-<h2>Skills</h2>
-
-<ul>
-  <li>G Suite</li>
-  <li>Microsoft Office</li>
-  <li>Zendesk</li>
-  <li>Helpshift</li>
-  <li>Slack</li>
-  <li>Asana</li>
-  <li>TCS (Content Moderation tool)</li>
-  <li>Customer Support & Troubleshooting</li>
-</ul>
-
-
+    <ul>
+      <li>G Suite</li>
+      <li>Microsoft Office</li>
+      <li>Zendesk</li>
+      <li>Helpshift</li>
+      <li>Slack</li>
+      <li>Asana</li>
+      <li>TCS (Content Moderation tool)</li>
+      <li>Customer Support & Troubleshooting</li>
+    </ul>
   </div>
 
   <div class="section">
+    <h2>Work Experience</h2>
 
-
-<h2>Work Experience</h2>
-
-<ul>
-  <li>
-    <b>Content Moderator – Enshored</b>
-    (Apr 2024 – Oct 2025)
-  </li>
-
-  <li>
-    <b>English Freelancer – Century Games</b>
-    (Jul 2023 – Oct 2023)
-  </li>
-
-  <li>
-    <b>Technical Support – Sitel Philippines</b>
-    (Nov 2019 – Mar 2020)
-  </li>
-
-  <li>
-    <b>Player Support Agent – Keywords Studios</b>
-    (Oct 2020 – Apr 2023)
-  </li>
-
-  <li>
-    <b>Customer Service Agent – Teleperformance</b>
-    (Jun 2017 – Oct 2018)
-  </li>
-</ul>
-
-
+    <ul>
+      <li><b>Content Moderator – Enshored</b> (Apr 2024 – Oct 2025)</li>
+      <li><b>English Freelancer – Century Games</b> (Jul 2023 – Oct 2023)</li>
+      <li><b>Technical Support – Sitel Philippines</b> (Nov 2019 – Mar 2020)</li>
+      <li><b>Player Support Agent – Keywords Studios</b> (Oct 2020 – Apr 2023)</li>
+      <li><b>Customer Service Agent – Teleperformance</b> (Jun 2017 – Oct 2018)</li>
+    </ul>
   </div>
 
   <div class="section">
+    <h2>Education</h2>
 
-
-<h2>Education</h2>
-
-<p>
-  Bachelor of Science in Hotel & Restaurant Management<br>
-  Centro Escolar University, Manila (2010 – 2015)
-</p>
-
-
+    <p>
+      Bachelor of Science in Hotel & Restaurant Management<br>
+      Centro Escolar University, Manila (2010 – 2015)
+    </p>
   </div>
 
 </div>
 
 <script>
 
-/* ===== MATRIX BACKGROUND ===== */
+/* MATRIX BACKGROUND */
 
-const matrix = document.getElementById('matrix');
-const matrixContext = matrix.getContext('2d');
+const matrix = document.getElementById("matrix");
+const matrixContext = matrix.getContext("2d");
 
 const matrixFontSize = 16;
 
@@ -342,18 +279,20 @@ function resizeMatrix(){
   matrix.width = window.innerWidth;
   matrix.height = window.innerHeight;
 
-  matrixColumns =
-    Math.floor(matrix.width / matrixFontSize);
+  matrixColumns = Math.floor(
+    matrix.width / matrixFontSize
+  );
 
-  matrixDrops =
-    Array(matrixColumns).fill(1);
+  matrixDrops = Array(
+    matrixColumns
+  ).fill(1);
 
 }
 
 function drawMatrix(){
 
   matrixContext.fillStyle =
-    'rgba(2,5,2,0.08)';
+    "rgba(2,5,2,0.08)";
 
   matrixContext.fillRect(
     0,
@@ -363,13 +302,13 @@ function drawMatrix(){
   );
 
   matrixContext.fillStyle =
-    '#00ff41';
+    "#00ff41";
 
   matrixContext.font =
-    matrixFontSize + 'px monospace';
+    matrixFontSize + "px monospace";
 
   const characters =
-    'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%&*+-<>[]{}';
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%&*+-<>[]{}";
 
   for(
     let i = 0;
@@ -396,7 +335,6 @@ function drawMatrix(){
       matrixDrops[i] *
       matrixFontSize >
       matrix.height &&
-
       Math.random() >
       0.975
     ){
@@ -416,141 +354,96 @@ function drawMatrix(){
 }
 
 window.addEventListener(
-  'resize',
+  "resize",
   resizeMatrix
 );
 
 resizeMatrix();
-
 drawMatrix();
 
 
-/* ===== LAMP ===== */
+/* LAMP */
 
 const knob =
   document.getElementById(
-    'switch'
+    "switch"
   );
 
 const dark =
   document.getElementById(
-    'dark'
+    "dark"
   );
 
 const hint =
   document.getElementById(
-    'hint'
+    "hint"
   );
 
 let dragging = false;
-
 let startY = 0;
-
 let offset = 58;
-
 let lampState = false;
-
-
-function setLight(x,y){
-
-  document.documentElement
-    .style
-    .setProperty(
-      '--lx',
-      x + 'px'
-    );
-
-  document.documentElement
-    .style
-    .setProperty(
-      '--ly',
-      y + 'px'
-    );
-
-}
-
 
 function turnOn(){
 
   lampState = true;
 
   dark.classList.add(
-    'on'
+    "on"
   );
 
   hint.classList.add(
-    'hidden'
+    "hidden"
   );
 
 }
-
 
 function turnOff(){
 
   lampState = false;
 
   dark.classList.remove(
-    'on'
+    "on"
   );
 
 }
 
-
-/* Click toggles */
-
 knob.addEventListener(
-  'click',
-  ()=>{
+  "click",
+  function(){
 
-    lampState
-      ? turnOff()
-      : turnOn();
+    if(lampState){
+      turnOff();
+    }else{
+      turnOn();
+    }
 
   }
 );
 
-
-/* Mouse drag */
-
 knob.addEventListener(
-  'mousedown',
-  e=>{
+  "mousedown",
+  function(event){
 
     dragging = true;
 
     startY =
-      e.clientY -
+      event.clientY -
       offset;
 
   }
 );
 
-
 document.addEventListener(
-  'mousemove',
-  e=>{
+  "mousemove",
+  function(event){
 
-    if(
-      lampState
-    ){
-
-      setLight(
-        e.clientX,
-        e.clientY
-      );
-
-    }
-
-    if(
-      !dragging
-    ){
-
+    if(!dragging){
       return;
-
     }
 
     offset =
-      e.clientY -
+      event.clientY -
       startY;
 
     offset =
@@ -563,36 +456,31 @@ document.addEventListener(
       );
 
     knob.style.top =
-      offset +
-      'px';
+      offset + "px";
 
   }
 );
 
-
 document.addEventListener(
-  'mouseup',
-  ()=>{
+  "mouseup",
+  function(){
 
-    if(
-      dragging
-    ){
+    if(dragging){
 
-      if(
-        offset > 75
-      ){
+      if(offset > 75){
 
-        lampState
-          ? turnOff()
-          : turnOn();
+        if(lampState){
+          turnOff();
+        }else{
+          turnOn();
+        }
 
       }
 
       offset = 58;
 
       knob.style.top =
-        offset +
-        'px';
+        offset + "px";
 
     }
 
@@ -601,17 +489,14 @@ document.addEventListener(
   }
 );
 
-
-/* Touch support */
-
 knob.addEventListener(
-  'touchstart',
-  e=>{
+  "touchstart",
+  function(event){
 
     dragging = true;
 
     startY =
-      e.touches[0]
+      event.touches[0]
         .clientY -
       offset;
 
@@ -621,32 +506,16 @@ knob.addEventListener(
   }
 );
 
-
 document.addEventListener(
-  'touchmove',
-  e=>{
+  "touchmove",
+  function(event){
+
+    if(!dragging){
+      return;
+    }
 
     const touch =
-      e.touches[0];
-
-    if(
-      lampState
-    ){
-
-      setLight(
-        touch.clientX,
-        touch.clientY
-      );
-
-    }
-
-    if(
-      !dragging
-    ){
-
-      return;
-
-    }
+      event.touches[0];
 
     offset =
       touch.clientY -
@@ -662,8 +531,7 @@ document.addEventListener(
       );
 
     knob.style.top =
-      offset +
-      'px';
+      offset + "px";
 
   },
   {
@@ -671,20 +539,29 @@ document.addEventListener(
   }
 );
 
-
 document.addEventListener(
-  'touchend',
-  ()=>{
+  "touchend",
+  function(){
 
-    dragging =
-      false;
+    if(
+      dragging &&
+      offset > 75
+    ){
 
-    offset =
-      58;
+      if(lampState){
+        turnOff();
+      }else{
+        turnOn();
+      }
+
+    }
+
+    dragging = false;
+
+    offset = 58;
 
     knob.style.top =
-      offset +
-      'px';
+      offset + "px";
 
   }
 );
