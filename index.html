@@ -8,7 +8,6 @@
 <style>
 :root{
   --bg:#020502;
-  --dark:#020502;
   --matrix-green:#00ff41;
   --matrix-light:#b8ffc8;
   --panel:rgba(0,12,4,.78);
@@ -22,14 +21,14 @@
 body{
   margin:0;
   min-height:100vh;
-  font-family:Arial,Helvetica,sans-serif;
+  font-family:Arial, Helvetica, sans-serif;
   background:var(--bg);
   color:#f2fff5;
   overflow-x:hidden;
   user-select:none;
 }
 
-/* MATRIX BACKGROUND */
+/* ===== MATRIX BACKGROUND ===== */
 #matrix{
   position:fixed;
   inset:0;
@@ -40,15 +39,17 @@ body{
   pointer-events:none;
 }
 
-/* RESUME */
+/* ===== RESUME ===== */
 .container{
   max-width:900px;
-  margin:80px auto;
+  margin:50px auto;
   padding:30px 40px;
   background:var(--panel);
   border:1px solid var(--border);
   border-radius:14px;
-  box-shadow:0 0 20px rgba(0,255,65,.12),0 10px 30px rgba(0,0,0,.55);
+  box-shadow:
+    0 0 20px rgba(0,255,65,.12),
+    0 10px 30px rgba(0,0,0,.55);
   position:relative;
   z-index:1;
   backdrop-filter:blur(5px);
@@ -86,97 +87,10 @@ ul{
   padding-left:18px;
 }
 
-/* DARK OVERLAY */
-.darkness{
-  position:fixed;
-  inset:0;
-  background:var(--dark);
-  pointer-events:none;
-  z-index:5;
-  opacity:.92;
-  transition:opacity .2s ease;
-}
-
-.darkness.on{
-  opacity:0;
-}
-
-/* LAMP */
-.lamp{
-  position:fixed;
-  top:0;
-  left:50%;
-  transform:translateX(-50%);
-  width:220px;
-  height:240px;
-  z-index:10;
-  pointer-events:none;
-}
-
-.shade{
-  width:200px;
-  height:120px;
-  background:#666;
-  border-radius:110px 110px 18px 18px;
-  margin:0 auto;
-  box-shadow:0 8px 25px rgba(0,0,0,.45);
-}
-
-.rod{
-  width:8px;
-  height:90px;
-  background:#bbb;
-  margin:0 auto;
-}
-
-.cord{
-  width:2px;
-  height:70px;
-  background:#aaa;
-  margin:0 auto;
-  position:relative;
-}
-
-.knob{
-  width:34px;
-  height:34px;
-  border-radius:50%;
-  background:#f0f0f0;
-  border:3px solid #999;
-  position:absolute;
-  left:50%;
-  transform:translateX(-50%);
-  top:58px;
-  cursor:grab;
-  pointer-events:auto;
-  box-shadow:0 6px 14px rgba(0,0,0,.45);
-  touch-action:none;
-}
-
-.knob:active{
-  cursor:grabbing;
-}
-
-.hint{
-  position:fixed;
-  top:250px;
-  left:50%;
-  transform:translateX(-50%);
-  color:#fff;
-  font-size:14px;
-  z-index:10;
-  pointer-events:none;
-  opacity:.9;
-  text-shadow:0 0 8px rgba(0,255,65,.7);
-}
-
-.hidden{
-  opacity:0;
-}
-
+/* ===== MOBILE ===== */
 @media(max-width:700px){
   .container{
-    margin:80px 15px 30px;
+    margin:25px 15px;
     padding:25px 20px;
   }
 
@@ -189,23 +103,10 @@ ul{
 
 <body>
 
+<!-- MATRIX BACKGROUND -->
 <canvas id="matrix"></canvas>
 
-<div class="lamp">
-  <div class="shade"></div>
-  <div class="rod"></div>
-
-  <div class="cord">
-    <div class="knob" id="switch"></div>
-  </div>
-</div>
-
-<div class="hint" id="hint">
-  Drag or click the switch
-</div>
-
-<div class="darkness" id="dark"></div>
-
+<!-- RESUME -->
 <div class="container">
 
   <h1>Jomar N. Llamoso</h1>
@@ -263,8 +164,7 @@ ul{
 </div>
 
 <script>
-
-/* MATRIX BACKGROUND */
+/* ===== MATRIX BACKGROUND ===== */
 
 const matrix = document.getElementById("matrix");
 const matrixContext = matrix.getContext("2d");
@@ -360,212 +260,6 @@ window.addEventListener(
 
 resizeMatrix();
 drawMatrix();
-
-
-/* LAMP */
-
-const knob =
-  document.getElementById(
-    "switch"
-  );
-
-const dark =
-  document.getElementById(
-    "dark"
-  );
-
-const hint =
-  document.getElementById(
-    "hint"
-  );
-
-let dragging = false;
-let startY = 0;
-let offset = 58;
-let lampState = false;
-
-function turnOn(){
-
-  lampState = true;
-
-  dark.classList.add(
-    "on"
-  );
-
-  hint.classList.add(
-    "hidden"
-  );
-
-}
-
-function turnOff(){
-
-  lampState = false;
-
-  dark.classList.remove(
-    "on"
-  );
-
-}
-
-knob.addEventListener(
-  "click",
-  function(){
-
-    if(lampState){
-      turnOff();
-    }else{
-      turnOn();
-    }
-
-  }
-);
-
-knob.addEventListener(
-  "mousedown",
-  function(event){
-
-    dragging = true;
-
-    startY =
-      event.clientY -
-      offset;
-
-  }
-);
-
-document.addEventListener(
-  "mousemove",
-  function(event){
-
-    if(!dragging){
-      return;
-    }
-
-    offset =
-      event.clientY -
-      startY;
-
-    offset =
-      Math.max(
-        10,
-        Math.min(
-          offset,
-          90
-        )
-      );
-
-    knob.style.top =
-      offset + "px";
-
-  }
-);
-
-document.addEventListener(
-  "mouseup",
-  function(){
-
-    if(dragging){
-
-      if(offset > 75){
-
-        if(lampState){
-          turnOff();
-        }else{
-          turnOn();
-        }
-
-      }
-
-      offset = 58;
-
-      knob.style.top =
-        offset + "px";
-
-    }
-
-    dragging = false;
-
-  }
-);
-
-knob.addEventListener(
-  "touchstart",
-  function(event){
-
-    dragging = true;
-
-    startY =
-      event.touches[0]
-        .clientY -
-      offset;
-
-  },
-  {
-    passive:true
-  }
-);
-
-document.addEventListener(
-  "touchmove",
-  function(event){
-
-    if(!dragging){
-      return;
-    }
-
-    const touch =
-      event.touches[0];
-
-    offset =
-      touch.clientY -
-      startY;
-
-    offset =
-      Math.max(
-        10,
-        Math.min(
-          offset,
-          90
-        )
-      );
-
-    knob.style.top =
-      offset + "px";
-
-  },
-  {
-    passive:true
-  }
-);
-
-document.addEventListener(
-  "touchend",
-  function(){
-
-    if(
-      dragging &&
-      offset > 75
-    ){
-
-      if(lampState){
-        turnOff();
-      }else{
-        turnOn();
-      }
-
-    }
-
-    dragging = false;
-
-    offset = 58;
-
-    knob.style.top =
-      offset + "px";
-
-  }
-);
-
 </script>
 
 </body>
