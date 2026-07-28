@@ -19,6 +19,17 @@
     user-select:none; /* prevent text highlight while interacting */
   }
 
+  /* ===== MATRIX BACKGROUND ===== */
+  #matrix{
+    position:fixed;
+    inset:0;
+    width:100%;
+    height:100%;
+    background:#020502;
+    z-index:0;
+    pointer-events:none;
+  }
+
   /* ===== PROFILE ===== */
   .container{
     max-width:900px;
@@ -78,11 +89,24 @@
   }
   .knob:active{cursor:grabbing}
 
-  .hint{position:fixed;top:250px;left:50%;transform:translateX(-50%);color:#fff;font-size:14px;z-index:10;pointer-events:none;opacity:.9}
+  .hint{
+    position:fixed;
+    top:250px;
+    left:50%;
+    transform:translateX(-50%);
+    color:#fff;
+    font-size:14px;
+    z-index:10;
+    pointer-events:none;
+    opacity:.9
+  }
   .hidden{opacity:0}
 </style>
 </head>
 <body>
+
+<!-- MATRIX BACKGROUND -->
+<canvas id="matrix"></canvas>
 
 <div class="lamp">
   <div class="shade"></div>
@@ -91,6 +115,7 @@
     <div class="knob" id="switch"></div>
   </div>
 </div>
+
 <div class="hint" id="hint">Drag or click the switch</div>
 <div class="darkness" id="dark"></div>
 
@@ -102,7 +127,7 @@
 
   <div class="section">
     <h2>Professional Summary</h2>
-    <p>Experienced Customer Service Agent with 4+ years in the industry. Skilled in multitasking, problem‑solving, attention to detail, and email/chat communication. Currently transitioning into the IT/Tech field and eager to learn technical support, hardware/software troubleshooting, and CRM systems.</p>
+    <p>Experienced Customer Service Agent with 4+ years in the industry. Skilled in multitasking, problem-solving, attention to detail, and email/chat communication. Currently transitioning into the IT/Tech field and eager to learn technical support, hardware/software troubleshooting, and CRM systems.</p>
   </div>
 
   <div class="section">
@@ -138,6 +163,62 @@
 </div>
 
 <script>
+/* ===== MATRIX BACKGROUND SCRIPT ===== */
+const matrix = document.getElementById('matrix');
+const matrixContext = matrix.getContext('2d');
+
+let matrixFontSize = 16;
+let matrixColumns;
+let matrixDrops;
+
+function resizeMatrix(){
+  matrix.width = window.innerWidth;
+  matrix.height = window.innerHeight;
+
+  matrixColumns = Math.floor(matrix.width / matrixFontSize);
+  matrixDrops = Array(matrixColumns).fill(1);
+}
+
+function drawMatrix(){
+  matrixContext.fillStyle = 'rgba(2, 5, 2, 0.08)';
+  matrixContext.fillRect(0, 0, matrix.width, matrix.height);
+
+  matrixContext.fillStyle = '#00ff41';
+  matrixContext.font = matrixFontSize + 'px monospace';
+
+  for(let i = 0; i < matrixDrops.length; i++){
+    const characters =
+      'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%&*+-<>[]{}';
+
+    const character =
+      characters[Math.floor(Math.random() * characters.length)];
+
+    matrixContext.fillText(
+      character,
+      i * matrixFontSize,
+      matrixDrops[i] * matrixFontSize
+    );
+
+    if(
+      matrixDrops[i] * matrixFontSize > matrix.height &&
+      Math.random() > 0.975
+    ){
+      matrixDrops[i] = 0;
+    }
+
+    matrixDrops[i]++;
+  }
+
+  requestAnimationFrame(drawMatrix);
+}
+
+window.addEventListener('resize', resizeMatrix);
+
+resizeMatrix();
+drawMatrix();
+
+
+/* ===== EXISTING LAMP SCRIPT ===== */
 const knob = document.getElementById('switch');
 const dark = document.getElementById('dark');
 const hint = document.getElementById('hint');
@@ -157,6 +238,7 @@ function turnOn(){
   dark.classList.add('on');
   hint.classList.add('hidden');
 }
+
 function turnOff(){
   lampState=false;
   dark.classList.remove('on');
@@ -168,40 +250,78 @@ knob.addEventListener('click',()=>{
 });
 
 // drag to pull switch (like real lamp)
-knob.addEventListener('mousedown',e=>{dragging=true;startY=e.clientY-offset});
+knob.addEventListener('mousedown',e=>{
+  dragging=true;
+  startY=e.clientY-offset;
+});
 
 document.addEventListener('mousemove',e=>{
   // when lamp is ON, just hover to move the light (no holding required)
-  if(lampState){ setLight(e.clientX,e.clientY); }
+  if(lampState){
+    setLight(e.clientX,e.clientY);
+  }
 
   if(!dragging) return;
+
   offset=e.clientY-startY;
   offset=Math.max(10,Math.min(offset,90));
+
   knob.style.top=offset+'px';
 });
 
 document.addEventListener('mouseup',()=>{
   if(dragging){
+
     // pulled far enough -> toggle
-    if(offset>75) lampState?turnOff():turnOn();
+    if(offset>75){
+      lampState?turnOff():turnOn();
+    }
+
     offset=58; // snap back up
     knob.style.top=offset+'px';
   }
+
   dragging=false;
 });
 
-// touch support\ nknob.addEventListener('touchstart',e=>{dragging=true;startY=e.touches[0].clientY-offset},{passive:true});
 
-document.addEventListener('touchmove',e=>{
-  const t=e.touches[0];
-  if(lampState) setLight(t.clientX,t.clientY);
-  if(!dragging) return;
-  offset=t.clientY-startY;
-  offset=Math.max(10,Math.min(offset,90));
-  knob.style.top=offset+'px';
-},{passive:true});
+/* ===== TOUCH SUPPORT ===== */
+knob.addEventListener(
+  'touchstart',
+  e=>{
+    dragging=true;
+    startY=e.touches[0].clientY-offset;
+  },
+  {passive:true}
+);
 
-document.addEventListener('touchend',()=>{dragging=false;offset=58;knob.style.top=offset+'px'});
+document.addEventListener(
+  'touchmove',
+  e=>{
+    const t=e.touches[0];
+
+    if(lampState){
+      setLight(t.clientX,t.clientY);
+    }
+
+    if(!dragging) return;
+
+    offset=t.clientY-startY;
+    offset=Math.max(10,Math.min(offset,90));
+
+    knob.style.top=offset+'px';
+  },
+  {passive:true}
+);
+
+document.addEventListener(
+  'touchend',
+  ()=>{
+    dragging=false;
+    offset=58;
+    knob.style.top=offset+'px';
+  }
+);
 </script>
 
 </body>
